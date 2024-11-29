@@ -1,0 +1,63 @@
+---
+- name: Deploy Smart Workout Tracker
+  hosts: workout_tracker  # Inventory group defined in your Ansible hosts file
+  become: true  # Use sudo to execute commands
+  vars:
+    repo_url: "https://github.com/Aditya-jaiswal07972/workout-tracker.git"  # GitHub repository URL
+    app_dir: "/opt/workout_tracker"  # Directory to store the application
+    venv_dir: "/opt/workout_tracker/venv"  # Directory to store the virtual environment
+
+  tasks:
+    - name: Update the package manager cache
+      apt:
+        update_cache: yes
+
+    - name: Install required system packages
+      apt:
+        name:
+          - python3
+          - python3-pip
+          - python3-venv
+          - ffmpeg
+          - git
+        state: present
+
+    - name: Create application directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Clone the GitHub repository
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ app_dir }}"
+        version: main
+
+    - name: Create a Python virtual environment
+      command: python3 -m venv "{{ venv_dir }}"
+      args:
+        creates: "{{ venv_dir }}"
+
+    - name: Install Python dependencies
+      pip:
+        requirements: "{{ app_dir }}/requirements.txt"
+        virtualenv: "{{ venv_dir }}"
+
+    - name: Start the Flask application
+      shell: |
+        source {{ venv_dir }}/bin/activate
+        nohup python3 {{ app_dir }}/app.py &  # Run Flask server in the background
+      args:
+        executable: /bin/bash
+        chdir: "{{ app_dir }}"
+      
+    - name: Ensure Flask is running
+      shell: pgrep -f "flask run"
+      register: flask_process
+      failed_when: flask_process.rc != 0
+      changed_when: false
+
+    - name: Display Flask status
+      debug:
+        msg: "Flask server is running"
