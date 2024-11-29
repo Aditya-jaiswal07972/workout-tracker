@@ -83,5 +83,5 @@ if __name__ == '__main__':
     exercise_thread = Thread(target=track_exercises)
     exercise_thread.start()
 
-    # Start the Flask web server
-    app.run(debug=True, use_reloader=False)
+    # Start the Flask web server on all available interfaces (0.0.0.0)
+    app.run(host='0.0.0.0', port=5000, debug=True)  # This makes the app accessible on all network interfaces
