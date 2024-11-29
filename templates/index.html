@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Workout Tracker</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .data-container { margin-top: 20px; }
+        .data-container div { margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Smart Workout Tracker</h1>
+    <div class="data-container">
+        <div>Bicep Curls: <span id="bicep-curls">0</span></div>
+        <div>Squats: <span id="squats">0</span></div>
+        <div>Push-ups: <span id="push-ups">0</span></div>
+        <div>Posture Quality: <span id="posture-quality">Good</span></div>
+        <div>Workout Time: <span id="workout-time">0.00</span> seconds</div>
+    </div>
+
+    <script>
+        // Fetch data from the server and update the webpage every second
+        function fetchExerciseData() {
+            fetch('/exercise_data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('bicep-curls').textContent = data.bicep_curls;
+                    document.getElementById('squats').textContent = data.squats;
+                    document.getElementById('push-ups').textContent = data.push_ups;
+                    document.getElementById('posture-quality').textContent = data.posture_quality;
+                    document.getElementById('workout-time').textContent = data.workout_time.toFixed(2);
+                });
+        }
+
+        // Update the data every second
+        setInterval(fetchExerciseData, 1000);
+
+        // Initial fetch
+        fetchExerciseData();
+    </script>
+</body>
+</html>
